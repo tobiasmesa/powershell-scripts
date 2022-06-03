@@ -7,7 +7,5 @@ Set-PowerCLIConfiguration -Scope User -ParticipateInCEIP $false -Confirm:$false
 
 Connect-VIServer -Server $vcenter -User $user -Password $password
 
-$todayDate = Get-Date
-$snapshots = Get-VM | Get-Snapshot| Where {$_.Created -lt (Get-Date).AddDays(-7)}
-
-$snapshots | Select-Object VM, created 
+$datastore = Get-Datastore | Select @{N="DataStoreName";E={$_.Name}},@{N="Percentage Free Space(%)";E={[math]::Round(($_.FreeSpaceGB)/($_.CapacityGB)*100,2)}}
+$datastore | Export-Csv -NoTypeInformation $LogFile
