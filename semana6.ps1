@@ -11,11 +11,9 @@ $VMs = Get-view -ViewType VirtualMachine
 
 ForEach ($vm in $VMs)
 {
-$VMInfo = {} | Select VMName,OSName,VMVersion,IPAddressNIC1,VMToolVersion,VMToolsStatus,Num_CPU,~
-
-~Mem_GB,TotalDisk,DiskCapacity,DiskFree,DiskUsed #,Powerstate
+$VMInfo = {} | Select VMName,OSName,VMVersion,IPAddressNIC1,VMToolVersion,VMToolsStatus,Num_CPU,Mem_GB,TotalDisk,DiskCapacity,DiskFree,DiskUsed, Powerstate
 $VMInfo.VMName = $vm.name
-#$VMInfo.Powerstate = $vm.summary.runtime.powerstate
+$VMInfo.Powerstate = $vm.summary.runtime.powerstate
 $VMInfo.OSName = $vm.config.GuestFullName
 $VMInfo.VMVersion = $vm.config.version
 $VMInfo.IPAddressNIC1 = $vm.Guest.IPAddress
@@ -32,3 +30,6 @@ $Report | Out-Gridview
 #Export to CSV,Uncomment
 $Report | export-csv .\test.csv
 }
+
+Get-VM | Sort-Object -Property Name | Get-View -Property @("Name", "Config.GuestFullName", "Guest.GuestFullName") |
+Select -Property Name, @{N="Configured OS";E={$_.Config.GuestFullName}}, @{N="Running OS";E={$_.Guest.GuestFullName}} | Export-CSV C:\report.csv -NoTypeInformation
